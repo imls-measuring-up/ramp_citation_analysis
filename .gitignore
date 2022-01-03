@@ -3,6 +3,7 @@
 *.csv
 .RData
 .Rhistory
+.obsidian/*
 
 # Ignore generated figures
 *.doc

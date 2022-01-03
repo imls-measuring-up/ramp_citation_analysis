@@ -1,4 +1,12 @@
+# Ignore ancillary files and data
 *~
 *.csv
 .RData
 .Rhistory
+
+# Ignore generated figures
+*.doc
+*.docx
+
+# Include the aggregated analytic dataset
+!ramp_crossref_unpaywall_merged.csv

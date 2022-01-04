@@ -74,7 +74,7 @@ A detailed description of RAMP data and data processing is provided in the publi
 
 > Data type: integer
 
-> Description: The number of citations received by the article with the DOI referenced in the **doi** column, as of data collection date of ???.
+> Description: The number of citations received by the article with the DOI referenced in the **doi** column, as of data collection date of 2020-09-22.
 
 > Data source: Crossref
 
@@ -82,7 +82,7 @@ A detailed description of RAMP data and data processing is provided in the publi
 
 > Data type: date
 
-> Description: The value of the ??? field in the Crossref metadata for the DOI referenced in the **doi** column.
+> Description: The year value of the **created** field in the Crossref metadata for the DOI referenced in the **doi** column.
 
 > Data source: Crossref
 
@@ -90,7 +90,7 @@ A detailed description of RAMP data and data processing is provided in the publi
 
 > Data type: logical
 
-> Description: TRUE or FALSE depending on whether Unpaywall listed the IR referenced in the **ir** column as an open access host of the article with the DOI referenced in the **doi** column, as of the data collection date of ???.
+> Description: TRUE or FALSE depending on whether Unpaywall listed the IR referenced in the **ir** column as an open access host of the article with the DOI referenced in the **doi** column, as of the data collection date of 2020-09-23.
 
 > Data source: Unpaywall
 

@@ -2,9 +2,23 @@
 
 #### GitHub repository URL: <https://github.com/imls-measuring-up/ramp_citation_analysis>
 
-Add description
+The file, *ramp_crossref_unpaywall_merged.csv*, contains data about items hosted by RAMP participating IR that were accessed via a search engine result page (SERP) from a Google web or Scholar search. "Accessed" in this case means that a URL pointing to a content file associated with the item was clicked on at least once during the period of RAMP data collection (Jan 1 - May 31, 2019). In the file *ramp_crossref_unpaywall_merged.csv*, RAMP data is combined with descriptive metadata available from each item's webpage in its parent IR, citation data from Crossref, and open access (OA) availability data from Unpaywall. The dataset is the one used for the anaylses described in the manuscript.
 
-Add data citations (Crossref, GSC, RAMP, Unpaywall)
+Data were compiled for 35 IR that were registered with RAMP during the period of January 1, 2019 - May 31, 2019. This is a subset of the total number of RAMP participants.
+
+A detailed description of RAMP data and data processing is provided in the published subset of RAMP data:
+
+> Wheeler, Jonathan et al. (2020), RAMP data subset, January 1 through May 31, 2019, v6, University of New Mexico, Dataset, [https://doi.org/10.5061/dryad.fbg79cnr0](https://doi.org/10.5061/dryad.fbg79cnr0)
+
+### Data Sources
+
+> Crossref REST API. n.d. https://github.com/CrossRef/rest-api-doc.
+
+> Google, Inc. “Search Console APIs.” Google Developers, 2020. [https://developers.google.com/webmaster-tools/search-console-api-original/](https://developers.google.com/webmaster-tools/search-console-api-original/).
+
+> Unpaywall REST API. 2020. https://unpaywall.org/products/api.
+
+> Wheeler, Jonathan, Kenning Arlitsch, Minh Pham, and Nikolaus Parulian. “RAMP Data Subset, January 1 through May 31, 2019.” University of New Mexico, January 14, 2020. [https://doi.org/10.5061/dryad.fbg79cnr0](https://doi.org/10.5061/dryad.fbg79cnr0).
 
 ## Column definitions and data sources
 

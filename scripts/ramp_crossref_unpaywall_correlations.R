@@ -237,7 +237,7 @@ adj_dat_n %>%
             min = min(citation_c_adj), 
             max = max(citation_c_adj))
 
-###########---------------------ANCOVA as a generalized linear model
+###########---------------------multiple linear models as ANCOVA
 # Test for correlations between clicks received from search engine 
 # results pages, citations, and availability from different types of
 # OA hosts.
@@ -401,6 +401,7 @@ m5_2 <- lm (citation_c_adj ~ click_b + other_c_b, data = adj_dat_n_5)
 summary(m5_2)
 anova(m5_2)
 
+###########---------------------linear models as one way ANOVA
 
 #---Citation effects based on number of clicks received.
 m6 <- lm(citation_c_adj ~ click_b, data = adj_dat_n) 

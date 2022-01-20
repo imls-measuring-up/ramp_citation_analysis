@@ -442,9 +442,9 @@ summary(m6_2)
 t1_data <- adj_dat_n %>% 
   summarize("Items with OA availability" = sum(!is.na(oa_c_adj)),
             "Items hosted by IR" = sum(ir_c_adj > 0),
-            "Items hosted by disciplinary repositories" = sum(dr_c > 0),
-            "Items hosted by publisher OA repositories" = sum(pub_c > 0),
-            "Items hosted by other types of OA repositories" = sum(other_c >0)) %>% 
+            "Items also hosted by disciplinary repositories" = sum(dr_c > 0),
+            "Items also hosted by publisher-provided OA" = sum(pub_c > 0),
+            "Items also hosted by other types of OA repositories" = sum(other_c >0)) %>% 
   pivot_longer(
     cols = c(starts_with("Items")),
     names_to = "OA Host Type",
@@ -455,7 +455,7 @@ t1_data$"Percentage of Observations" <- round((t1_data$Frequency/nrow(adj_dat_n)
 
 
 t1_flex <- flextable(t1_data)
-t1_flex <- set_caption(t1_flex, caption = "Table 1: Open Access Availability by Host Type (N = 13451)")
+t1_flex <- set_caption(t1_flex, caption = "Table 1: Open Access availability by host type (N = 13451)")
 
 t1_flex
 #autofit(t1_flex)
@@ -485,7 +485,7 @@ t2_data <- adj_dat_n %>%
             Max = round(max(citation_c_adj), 0))
 
 t2_flex <- flextable(t2_data)
-t2_flex <- set_caption(t2_flex, caption = "Table 2: Citation rate mean differences across click groups")
+t2_flex <- set_caption(t2_flex, caption = "Table 2: Citation means across click groups")
 
 t2_flex
 set_table_properties(t2_flex, layout = "autofit")
@@ -518,7 +518,7 @@ t3_oa_data <- adj_dat_n %>%
             Max = round(max(citation_c_adj), 0))
 t3_oa_data$oa_c_adj_n <- as.character(t3_oa_data$oa_c_adj_n)
 t3_oa_data <- t3_oa_data %>% rename(Category = oa_c_adj_n)
-t3_oa_data$Host <- "All OA hosts"
+t3_oa_data$Host <- "All OA hosts (total OA availability)"
   
 # IR
 t3_ir_data <- adj_dat_n %>%
@@ -600,7 +600,7 @@ t3_flex <- t3_flex %>%
   bold(i = ~ !is.na(Host), bold = TRUE) %>% 
   italic(i = ~ !is.na(Host), italic = TRUE)
 
-t3_flex <- set_caption(t3_flex, caption = "Table 3: Citation rate mean differences by OA host type.")
+t3_flex <- set_caption(t3_flex, caption = "Table 3: Citation means by OA host type.")
 autofit(t3_flex)
 save_as_docx(t3_flex, values = NULL, path = "../figures/Table_3.docx", 
              pr_section = NULL)
@@ -631,12 +631,12 @@ stargazer(m1_2,
           m4_2,
           m5_2,
           type="html",
-          dep.var.labels = "Per-year citation rates per availability of OA copies by repository type",
+          dep.var.labels = "Per-year citation rate means",
           covariate.labels = c('Intercept',
                                'Clicks above median',
                                'Total OA copies above median',
                                'Count IR copies above median',
-                               'DR OA available',
+                               'Disciplinary repository OA available',
                                'Publisher OA available',
                                'Other OA available'),
           #ci = TRUE,
@@ -646,4 +646,4 @@ stargazer(m1_2,
           align = TRUE,
           report = "vcst*",
           out = "../figures/Table_5.doc",
-          notes = "Table 5: Citation Impact of OA Copies of Items Held by Repository Type.")
+          notes = "Table 5: Citation effect of additional OA copies of items by repository type.")

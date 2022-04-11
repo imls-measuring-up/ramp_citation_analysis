@@ -647,3 +647,27 @@ stargazer(m1_2,
           report = "vcst*",
           out = "../figures/Table_5.doc",
           notes = "Table 5: Citation Impact of OA Copies of Items Held by Repository Type.")
+
+
+# Response to review
+# breakdown of sample by year of publication
+# adj_dat, ir_pub_year
+year_summary <- adj_dat %>% 
+  group_by(ir_pub_year) %>% 
+  summarise(count = sum(n()),
+            proportion = (sum(n())/13456) * 100)
+
+year_summary
+
+# adj_dat, cref_created_year
+year_summary_cref <- adj_dat %>% 
+  group_by(cref_created_year) %>% 
+  summarise(count = sum(n()),
+            proportion = (sum(n())/13456) * 100)
+
+year_summary_cref
+
+
+
+
+

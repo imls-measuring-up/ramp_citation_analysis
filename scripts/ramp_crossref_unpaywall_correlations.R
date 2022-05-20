@@ -71,19 +71,21 @@ dat_adj_pub_yr$avg_pub_year <- (dat_adj_pub_yr$cref_created_year +
                                   dat_adj_pub_yr$ir_pub_year)/2
 
 # Create a new column for the number of years an item has been available.
-dat_adj_pub_yr$year <- ifelse(dat_adj_pub_yr$avg_pub_year < 2004, 16,
-                              ifelse(dat_adj_pub_yr$avg_pub_year >= 2004 & dat_adj_pub_yr$avg_pub_year < 2005, 15,
-                                     ifelse(dat_adj_pub_yr$avg_pub_year >= 2005 & dat_adj_pub_yr$avg_pub_year < 2006, 14,
-                                            ifelse(dat_adj_pub_yr$avg_pub_year >= 2006 & dat_adj_pub_yr$avg_pub_year < 2007, 13,
-                                                   ifelse(dat_adj_pub_yr$avg_pub_year >= 2007 & dat_adj_pub_yr$avg_pub_year < 2008, 12,
-                                                          ifelse(dat_adj_pub_yr$avg_pub_year >= 2008 & dat_adj_pub_yr$avg_pub_year < 2009, 11,
-                                                                 ifelse(dat_adj_pub_yr$avg_pub_year >= 2009 & dat_adj_pub_yr$avg_pub_year < 2010, 10,
-                                                                        ifelse(dat_adj_pub_yr$avg_pub_year >= 2010 & dat_adj_pub_yr$avg_pub_year < 2011, 9,
-                                                                               ifelse(dat_adj_pub_yr$avg_pub_year >= 2011 & dat_adj_pub_yr$avg_pub_year < 2012, 8,
-                                                                                      ifelse(dat_adj_pub_yr$avg_pub_year >= 2012 & dat_adj_pub_yr$avg_pub_year < 2013, 7,
-                                                                                             ifelse(dat_adj_pub_yr$avg_pub_year >= 2013 & dat_adj_pub_yr$avg_pub_year < 2014, 6,
-                                                                                                    ifelse(dat_adj_pub_yr$avg_pub_year >= 2014 & dat_adj_pub_yr$avg_pub_year < 2015, 5,
-                                                                                                           4))))))))))))
+# Reference year is 2020, when citation data were harvested from Crossref.
+# So for items published in 2003, we are averaging citations across 17 years, etc.
+dat_adj_pub_yr$year <- ifelse(dat_adj_pub_yr$avg_pub_year < 2004, 17,
+                              ifelse(dat_adj_pub_yr$avg_pub_year >= 2004 & dat_adj_pub_yr$avg_pub_year < 2005, 16,
+                                     ifelse(dat_adj_pub_yr$avg_pub_year >= 2005 & dat_adj_pub_yr$avg_pub_year < 2006, 15,
+                                            ifelse(dat_adj_pub_yr$avg_pub_year >= 2006 & dat_adj_pub_yr$avg_pub_year < 2007, 14,
+                                                   ifelse(dat_adj_pub_yr$avg_pub_year >= 2007 & dat_adj_pub_yr$avg_pub_year < 2008, 13,
+                                                          ifelse(dat_adj_pub_yr$avg_pub_year >= 2008 & dat_adj_pub_yr$avg_pub_year < 2009, 12,
+                                                                 ifelse(dat_adj_pub_yr$avg_pub_year >= 2009 & dat_adj_pub_yr$avg_pub_year < 2010, 11,
+                                                                        ifelse(dat_adj_pub_yr$avg_pub_year >= 2010 & dat_adj_pub_yr$avg_pub_year < 2011, 10,
+                                                                               ifelse(dat_adj_pub_yr$avg_pub_year >= 2011 & dat_adj_pub_yr$avg_pub_year < 2012, 9,
+                                                                                      ifelse(dat_adj_pub_yr$avg_pub_year >= 2012 & dat_adj_pub_yr$avg_pub_year < 2013, 8,
+                                                                                             ifelse(dat_adj_pub_yr$avg_pub_year >= 2013 & dat_adj_pub_yr$avg_pub_year < 2014, 7,
+                                                                                                    ifelse(dat_adj_pub_yr$avg_pub_year >= 2014 & dat_adj_pub_yr$avg_pub_year < 2015, 6,
+                                                                                                           5))))))))))))
 
 # Create a column for the adjusted number 
 # of citations per year.
@@ -127,12 +129,16 @@ adj_dat_n <- adj_dat%>%
             other_c = mean(ct_other_oa_copies, na.rm = TRUE),
             pub_c = mean(ct_pub_oa_copies, na.rm = TRUE))
 
+summary(adj_dat_n)
+
 #---Transform data for the ANCOVA analysis.
 # Change click counts to categorical data
 adj_dat_n$click_b <-ifelse(adj_dat_n$click<=3, "Median and below or 1-3 clicks",
                            "Above median")
 adj_dat_n$click_b <- factor(adj_dat_n$click_b, levels = c("Median and below or 1-3 clicks",  "Above median"))
 prop.table(table(adj_dat_n$click_b))
+
+summary(adj_dat_n)
 
 # Create categorical variable using adjusted count of total OA copies.
 adj_dat_n$oa_c_adj_n <- ifelse(adj_dat_n$oa_c_adj>2, "Above median or 3 or more copies", "Median and below or 1-2 copies")
@@ -145,6 +151,9 @@ adj_dat_n$ir_c_adj_c <- ifelse(adj_dat_n$ir_c_adj==1, "Median and below or 1 cop
 adj_dat_n$ir_c_adj_c <- factor(adj_dat_n$ir_c_adj_c, levels = c("Median and below or 1 copy",
                                                                 "Above median or more than 1 copy"))
 prop.table(table(adj_dat_n$ir_c_adj_c))
+
+
+summary(adj_dat_n)
 
 # Create binary variables based on availability of
 # OA copies from disciplinary repositories.
@@ -167,6 +176,7 @@ prop.table(table(adj_dat_n$pub_c_b))
 # and number of types of OA copies are related to 
 # citation rates. 
 
+summary(adj_dat_n)
 # Citation rate mean differences across click groups.
 # Data are reported in Table 2 of the manuscript
 adj_dat_n %>%
@@ -453,23 +463,13 @@ t1_data <- adj_dat_n %>%
 
 t1_data$"Percentage of Observations" <- round((t1_data$Frequency/nrow(adj_dat_n))*100, 2)
 
-
-t1_flex <- flextable(t1_data)
-t1_flex <- set_caption(t1_flex, caption = "Table 1: Open Access Availability by Host Type (N = 13451)")
-
+t1_flex <- flextable(t1_data) %>%
+  set_caption(caption = "Table 2: Open Access Availability by Host Type (N = 13452)") %>%
+  set_table_properties(width = 1, layout = "autofit")
 t1_flex
-#autofit(t1_flex)
-set_table_properties(t1_flex, layout = "autofit")
 
-sect_properties <- prop_section(
-  page_size = page_size(orient = "portrait",
-                        width = 8.3, height = 11.7),
-  type = "continuous",
-  page_margins = page_mar()
-)
 save_as_docx(t1_flex, values = NULL, 
-             path = "../figures/Table_1.docx",
-             pr_section = sect_properties)
+             path = "../figures/Table_2.docx")
 
 
 # Table 2: Citation rate mean differences across click groups
@@ -484,21 +484,13 @@ t2_data <- adj_dat_n %>%
             Min = round(min(citation_c_adj), 0), 
             Max = round(max(citation_c_adj), 0))
 
-t2_flex <- flextable(t2_data)
-t2_flex <- set_caption(t2_flex, caption = "Table 2: Citation rate mean differences across click groups")
-
+t2_flex <- flextable(t2_data) %>%
+  set_caption(caption = "Table 4: Citation rate mean differences across click groups") %>%
+  set_table_properties(width = 1, layout = "autofit")
 t2_flex
-set_table_properties(t2_flex, layout = "autofit")
 
-sect_properties <- prop_section(
-  page_size = page_size(orient = "portrait",
-                        width = 8.3, height = 11.7),
-  type = "continuous",
-  page_margins = page_mar()
-)
 save_as_docx(t2_flex, values = NULL, 
-             path = "../figures/Table_2.docx",
-             pr_section = sect_properties)
+             path = "../figures/Table_4.docx")
 
 # Table 3
 # Citation rate mean differences across sub-groups of
@@ -585,42 +577,32 @@ dfs <- list(t3_oa_data, t3_ir_data, t3_dr_data, t3_pub_data, t3_oth_data)
 t3_data <- ldply(dfs, rbind)
 detach("package:plyr", unload = TRUE)
 
+# Make "Host" first column
+t3_data <- t3_data %>% relocate(Host, .before = Category)
+
 # Combined table for descriptive stats of citations 
 # based on OA availability
 
-t3_flex <- as_grouped_data(t3_data, groups = "Host") %>%
-  as_flextable() %>% 
-  valign(valign = "top") %>% 
-  autofit()
+t3_flex <- flextable(t3_data) %>%
+  merge_v(j = ~ Host) %>%
+  hline(part = "body") %>%
+  vline(part = "body") %>%
+  set_caption(caption = "Table 5: Citation rate mean differences by OA host type.") %>%
+  set_table_properties(width = 1, layout = "autofit")
 t3_flex
 
-t3_flex <- t3_flex %>% 
-  fontsize(i = ~ !is.na(Host), size = 11) %>% 
-  font(i = ~ !is.na(Host), fontname = "Times") %>% 
-  bold(i = ~ !is.na(Host), bold = TRUE) %>% 
-  italic(i = ~ !is.na(Host), italic = TRUE)
-
-t3_flex <- set_caption(t3_flex, caption = "Table 3: Citation rate mean differences by OA host type.")
-autofit(t3_flex)
-save_as_docx(t3_flex, values = NULL, path = "../figures/Table_3.docx", 
-             pr_section = NULL)
+save_as_docx(t3_flex, values = NULL, 
+             path = "../figures/Table_5.docx")
 
 
 # ANCOVA Citation mean differences between click groups
-t4_flex <- as_flextable(m6_2)
-t4_flex <- set_caption(t4_flex, caption = "Table 4: Citation mean differences by click groups.")
+t4_flex <- as_flextable(m6_2) %>%
+  set_caption(caption = "Table 6: Citation mean differences by click groups.") %>%
+  set_table_properties(width = 1, layout = "autofit")
 t4_flex
-set_table_properties(t4_flex, layout = "autofit")
 
-sect_properties <- prop_section(
-  page_size = page_size(orient = "portrait",
-                        width = 8.3, height = 11.7),
-  type = "continuous",
-  page_margins = page_mar()
-)
 save_as_docx(t4_flex, values = NULL, 
-             path = "../figures/Table_4.docx",
-             pr_section = sect_properties)
+             path = "../figures/Table_6.docx")
 
 
 # Table 5
@@ -645,8 +627,8 @@ stargazer(m1_2,
           intercept.top = TRUE,
           align = TRUE,
           report = "vcst*",
-          out = "../figures/Table_5.doc",
-          notes = "Table 5: Citation Impact of OA Copies of Items Held by Repository Type.")
+          out = "../figures/Table_7.doc",
+          notes = "Table 7: Citation Impact of OA Copies of Items Held by Repository Type.")
 
 
 # Response to review
@@ -655,17 +637,23 @@ stargazer(m1_2,
 year_summary <- adj_dat %>% 
   group_by(ir_pub_year) %>% 
   summarise(count = sum(n()),
-            proportion = (sum(n())/13456) * 100)
+            proportion = round((sum(n())/13457) * 100, digits = 2))
 
 year_summary
 
-# adj_dat, cref_created_year
-year_summary_cref <- adj_dat %>% 
-  group_by(cref_created_year) %>% 
-  summarise(count = sum(n()),
-            proportion = (sum(n())/13456) * 100)
+yr_t <- flextable(year_summary) %>%
+  set_header_labels(
+    ir_pub_year = "Year uploaded to IR",
+    count = "Count",
+    proportion = "Proportion") %>%
+  colformat_num(j = 1, big.mark = "") %>%
+  set_caption(caption = "Table 1: Count of items by year of upload to IR.") %>%
+  set_table_properties(width = 1, layout = "autofit")
+yr_t
 
-year_summary_cref
+save_as_docx(yr_t, values = NULL, 
+             path = "../figures/Table_1.docx")
+  
 
 
 

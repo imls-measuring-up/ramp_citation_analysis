@@ -130,11 +130,36 @@ disc_c <- dat_disciplinary%>%
 
 dat_disciplinary <- left_join(dat_disciplinary, disc_c, by = c("doi", "dr_type"))
 
+total_dr_dois_2 <- dat_disciplinary %>%
+  group_by(doi) %>% 
+  summarise(count = n())
+
+# count of 3496 still matches reported number
+
 
 #---avoid double counting observations in each type of disciplinary repositories
 dat_disciplinary_no_dup <- dat_disciplinary[!duplicated(dat_disciplinary[c(1,21)]),]
 table(dat_disciplinary_no_dup$dr_type)
 
+total_dr_dois_3 <- dat_disciplinary_no_dup %>% 
+  group_by(doi) %>% 
+  summarise(count = n())
+
+# count of 3496 still matches reported number
+
+# Higher nrow in dat_disciplinary_no_dup of 3554
+# probably results from some DOIs available
+# from different disciplines as categorized - check
+
+multi_disciplinary_dois <- dat_disciplinary_no_dup %>% 
+  group_by(doi) %>% 
+  summarise(count = n()) %>% 
+  filter(count > 1) %>% 
+  left_join(dat_disciplinary_no_dup, by = 'doi') %>% 
+  dplyr::select(doi, repo_name, dr_type)
+
+# Yes - these 58 dois occur twice, under different dr_type
+# categories - should be maintained as such for the analysis
 
 #---select only variables of interest
 dat_disciplinary_no_dup <- dat_disciplinary_no_dup[, c(1, 3, 5, 21, 22)]

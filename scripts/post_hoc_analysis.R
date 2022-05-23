@@ -159,7 +159,7 @@ multi_disciplinary_dois <- dat_disciplinary_no_dup %>%
   dplyr::select(doi, repo_name, dr_type)
 
 # Yes - these 58 dois occur twice, under different dr_type
-# categories - should be maintained as such for the analysis
+# categories - this is also addressed below
 
 #---select only variables of interest
 dat_disciplinary_no_dup <- dat_disciplinary_no_dup[, c(1, 3, 5, 21, 22)]
@@ -181,6 +181,8 @@ View(duplicate_doi)
 #---to avoid having same DOIs in more than one disciplinary repositories
 #---observations should be independent across conditions
 clean_dat <- anti_join(dat_disciplinary_no_dup, duplicate_doi, by = "doi")
+
+# Note those DOIs have been completely removed, not just deduplicated
 
 clean_dat%>%
   group_by(dr_type)%>%
@@ -209,7 +211,7 @@ clean_dat%>%
 #----conflicting results
 
 
-#-----testing to see if there are citation differences across disciplinaries
+#-----testing to see if there are citation differences across disciplines
 clean_dat <- cbind(index = 1:nrow(clean_dat), clean_dat)
 m_disc <- lm (citation_c_adj ~ dr_type, data = clean_dat)
 summary(m_disc )
@@ -236,7 +238,7 @@ clean_dat_n  <- clean_dat_n [!(duplicated(clean_dat_n$index ) | duplicated(clean
 
 
 #-Run the model again without outliers.
-# Results are presented in Table 5 of the manuscript.
+# Results are presented in Table n+ of the manuscript. 
 m_disc_1 <- lm (citation_c_adj ~ dr_type, data = clean_dat_n)
 summary(m_disc_1)
 anova(m_disc_1)
@@ -286,7 +288,7 @@ dat_disc_n  <- dat_disc_n [!(duplicated(dat_disc_n$index ) | duplicated(dat_disc
 
 
 #-Run the model again without outliers.
-# Results are presented in Table 5 of the manuscript.
+# Results are presented in Table n of the manuscript.
 m_disc_1 <- lm (citation_c_adj ~ dr_c, data = dat_disc_n)
 summary(m_disc_1)
 

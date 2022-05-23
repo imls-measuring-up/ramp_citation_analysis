@@ -238,7 +238,7 @@ clean_dat_n  <- clean_dat_n [!(duplicated(clean_dat_n$index ) | duplicated(clean
 
 
 #-Run the model again without outliers.
-# Results are presented in Table n+ of the manuscript. 
+# Results are presented in Table n of the manuscript. 
 m_disc_1 <- lm (citation_c_adj ~ dr_type, data = clean_dat_n)
 summary(m_disc_1)
 anova(m_disc_1)

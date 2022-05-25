@@ -447,58 +447,103 @@ summary(m6_2)
 # Remaining code draws tables for the manuscript.
 # Note: Tables are not included in the github repository.
 
-# Table 1: Open Access Availability by Host Type 
+## Table 1: Group analyzed data by year
+
+yd <- adj_dat %>% 
+  dplyr::select(ir_pub_year) %>%
+  group_by(ir_pub_year) %>% 
+  summarise(count_year = n(),
+            proportion = round((n()/13457)*100, digits = 2))
+yd
+
+t1_flex <- flextable(yd) %>%
+  colformat_num(j = 1, big.mark = "") %>%
+  set_header_labels(
+    ir_pub_year = "Year uploaded to IR",
+    count_year = "Count",
+    proportion = "Proportion") %>%
+  set_caption(caption = "Table 1: Count of items by year of upload to RAMP IR host") %>%
+  set_table_properties(width = 1, layout = "autofit")
+t1_flex
+
+save_as_docx(t1_flex, values = NULL, 
+             path = "../figures/Table_1.docx")
+
+
+# Table 2: Open Access Availability by Host Type 
 # Desc stats - count of OA copies per host type, % of total
-t1_data <- adj_dat_n %>% 
+t2_data <- adj_dat_n %>% 
   summarize("Items with OA availability" = sum(!is.na(oa_c_adj)),
-            "Items hosted by IR" = sum(ir_c_adj > 0),
-            "Items hosted by disciplinary repositories" = sum(dr_c > 0),
-            "Items hosted by publisher OA repositories" = sum(pub_c > 0),
-            "Items hosted by other types of OA repositories" = sum(other_c >0)) %>% 
+            "Items hosted by one or more IR" = sum(ir_c_adj > 0),
+            "Items also hosted by disciplinary repositories" = sum(dr_c > 0),
+            "Items also hosted by publisher OA repositories" = sum(pub_c > 0),
+            "Items also hosted by other types of OA repositories" = sum(other_c >0)) %>% 
   pivot_longer(
     cols = c(starts_with("Items")),
     names_to = "OA Host Type",
     values_to = "Frequency"
   )
 
-t1_data$"Percentage of Observations" <- round((t1_data$Frequency/nrow(adj_dat_n))*100, 2)
-
-t1_flex <- flextable(t1_data) %>%
-  set_caption(caption = "Table 2: Open Access Availability by Host Type (N = 13452)") %>%
-  set_table_properties(width = 1, layout = "autofit")
-t1_flex
-
-save_as_docx(t1_flex, values = NULL, 
-             path = "../figures/Table_2.docx")
-
-
-# Table 2: Citation rate mean differences across click groups
-t2_data <- adj_dat_n %>%
-  dplyr::select(citation_c_adj, click_b) %>% 
-  group_by(click_b) %>% 
-  rename("Click group" = click_b) %>% 
-  summarise(N = n(), 
-            Mean = round(mean(citation_c_adj), 2), 
-            SD = round(sd(citation_c_adj), 2),
-            Median = round(median(citation_c_adj), 2),
-            Min = round(min(citation_c_adj), 0), 
-            Max = round(max(citation_c_adj), 0))
+t2_data$"Percentage of Observations" <- round((t2_data$Frequency/nrow(adj_dat_n))*100, 2)
 
 t2_flex <- flextable(t2_data) %>%
-  set_caption(caption = "Table 4: Citation rate mean differences across click groups") %>%
+  set_caption(caption = "Table 2: Open Access Availability by Host Type (N = 13452)") %>%
   set_table_properties(width = 1, layout = "autofit")
 t2_flex
 
 save_as_docx(t2_flex, values = NULL, 
+             path = "../figures/Table_2.docx")
+
+# Table 3: Distribution of items across disciplinary repositories
+# Note: This table uses a different dataset
+t3_data <- import("../data/ramp_crossref_unpaywall_by_hosts.csv")
+dh <- t3_data %>% 
+  filter(repo_subtype == "disciplinary") %>% 
+  dplyr::select(repo_name) %>% 
+  group_by(repo_name) %>% 
+  summarise(count_dr = n()) %>% 
+  arrange(desc(count_dr), repo_name)
+dh
+
+t3_flex <- flextable(dh) %>%
+  set_caption(caption = "Table 3: Distribution of items across disciplinary repositories.") %>%
+  set_header_labels(
+    repo_name = "Repository",
+    count_dr = "Count"
+  ) %>%
+  set_table_properties(width = 1, layout = "autofit")
+t3_flex
+
+save_as_docx(t3_flex, values = NULL, 
+             path = "../figures/Table_3.docx")
+
+# Table 4: Citation rate mean differences across click groups (desc stats)
+t4_data <- adj_dat_n %>%
+  dplyr::select(citation_c_adj, click_b) %>% 
+  group_by(click_b) %>% 
+  rename("Click group" = click_b) %>% 
+  summarise(N = n(), 
+            "Mean citations" = round(mean(citation_c_adj), 2), 
+            SD = round(sd(citation_c_adj), 2),
+            "Median citations" = round(median(citation_c_adj), 2),
+            "Min citations" = round(min(citation_c_adj), 0), 
+            "Max citations" = round(max(citation_c_adj), 0))
+
+t4_flex <- flextable(t4_data) %>%
+  set_caption(caption = "Table 4: Citation mean differences across click groups") %>%
+  set_table_properties(width = 1, layout = "autofit")
+t4_flex
+
+save_as_docx(t4_flex, values = NULL, 
              path = "../figures/Table_4.docx")
 
-# Table 3
+# Table 5
 # Citation rate mean differences across sub-groups of
 # different types of OA repositories
 # Including % of total observations
 
 # All OA hosts
-t3_oa_data <- adj_dat_n %>%
+t5_oa_data <- adj_dat_n %>%
   dplyr::select(citation_c_adj, oa_c_adj_n) %>% 
   group_by(oa_c_adj_n) %>% 
   summarise(N = n(),
@@ -508,12 +553,12 @@ t3_oa_data <- adj_dat_n %>%
             Median = round(median(citation_c_adj), 2),
             Min = round(min(citation_c_adj), 0),
             Max = round(max(citation_c_adj), 0))
-t3_oa_data$oa_c_adj_n <- as.character(t3_oa_data$oa_c_adj_n)
-t3_oa_data <- t3_oa_data %>% rename(Category = oa_c_adj_n)
-t3_oa_data$Host <- "All OA hosts"
+t5_oa_data$oa_c_adj_n <- as.character(t5_oa_data$oa_c_adj_n)
+t5_oa_data <- t5_oa_data %>% rename(Category = oa_c_adj_n)
+t5_oa_data$Host <- "All OA hosts"
   
 # IR
-t3_ir_data <- adj_dat_n %>%
+t5_ir_data <- adj_dat_n %>%
   dplyr::select(citation_c_adj, ir_c_adj_c) %>% 
   group_by(ir_c_adj_c) %>% 
   summarise(N = n(),
@@ -523,12 +568,12 @@ t3_ir_data <- adj_dat_n %>%
             Median = round(median(citation_c_adj), 2),
             Min = round(min(citation_c_adj), 0), 
             Max = round(max(citation_c_adj), 0))
-t3_ir_data$ir_c_adj_c <- as.character(t3_ir_data$ir_c_adj_c)
-t3_ir_data <- t3_ir_data %>% rename(Category = ir_c_adj_c)
-t3_ir_data$Host <- "Institutional repositories"
+t5_ir_data$ir_c_adj_c <- as.character(t5_ir_data$ir_c_adj_c)
+t5_ir_data <- t5_ir_data %>% rename(Category = ir_c_adj_c)
+t5_ir_data$Host <- "Institutional repositories"
 
 # DR
-t3_dr_data <- adj_dat_n %>%
+t5_dr_data <- adj_dat_n %>%
   dplyr::select(citation_c_adj, dr_c_b) %>% 
   group_by(dr_c_b) %>%  
   summarise(N = n(),
@@ -538,12 +583,12 @@ t3_dr_data <- adj_dat_n %>%
             Median = round(median(citation_c_adj), 2),
             Min = round(min(citation_c_adj), 0), 
             Max = round(max(citation_c_adj), 0))
-t3_dr_data$dr_c_b <- as.character(t3_dr_data$dr_c_b)
-t3_dr_data <- t3_dr_data %>% rename(Category = dr_c_b)
-t3_dr_data$Host <- "Disciplinary repositories"
+t5_dr_data$dr_c_b <- as.character(t5_dr_data$dr_c_b)
+t5_dr_data <- t5_dr_data %>% rename(Category = dr_c_b)
+t5_dr_data$Host <- "Disciplinary repositories"
 
 # Pub
-t3_pub_data <- adj_dat_n %>%
+t5_pub_data <- adj_dat_n %>%
   dplyr::select(citation_c_adj, pub_c_b) %>% 
   group_by(pub_c_b) %>%  
   summarise(N = n(),
@@ -553,12 +598,12 @@ t3_pub_data <- adj_dat_n %>%
             Median = round(median(citation_c_adj), 2),
             Min = round(min(citation_c_adj), 0), 
             Max = round(max(citation_c_adj), 0))
-t3_pub_data$pub_c_b <- as.character(t3_pub_data$pub_c_b)
-t3_pub_data <- t3_pub_data %>% rename(Category = pub_c_b)
-t3_pub_data$Host <- "Publisher OA"
+t5_pub_data$pub_c_b <- as.character(t5_pub_data$pub_c_b)
+t5_pub_data <- t5_pub_data %>% rename(Category = pub_c_b)
+t5_pub_data$Host <- "Publisher OA"
 
 # Other
-t3_oth_data <- adj_dat_n %>%
+t5_oth_data <- adj_dat_n %>%
   dplyr::select(citation_c_adj, other_c_b) %>% 
   group_by(other_c_b) %>%  
   summarise(N = n(),
@@ -568,44 +613,44 @@ t3_oth_data <- adj_dat_n %>%
             Median = round(median(citation_c_adj), 2),
             Min = round(min(citation_c_adj), 0), 
             Max = round(max(citation_c_adj), 0))
-t3_oth_data$other_c_b <- as.character(t3_oth_data$other_c_b)
-t3_oth_data <- t3_oth_data %>% rename(Category = other_c_b)
-t3_oth_data$Host <- "Other OA"
+t5_oth_data$other_c_b <- as.character(t5_oth_data$other_c_b)
+t5_oth_data <- t5_oth_data %>% rename(Category = other_c_b)
+t5_oth_data$Host <- "Other OA"
 
 library(plyr)
-dfs <- list(t3_oa_data, t3_ir_data, t3_dr_data, t3_pub_data, t3_oth_data)
-t3_data <- ldply(dfs, rbind)
+dfs <- list(t5_oa_data, t5_ir_data, t5_dr_data, t5_pub_data, t5_oth_data)
+t5_data <- ldply(dfs, rbind)
 detach("package:plyr", unload = TRUE)
 
 # Make "Host" first column
-t3_data <- t3_data %>% relocate(Host, .before = Category)
+t5_data <- t5_data %>% relocate(Host, .before = Category)
 
 # Combined table for descriptive stats of citations 
 # based on OA availability
 
-t3_flex <- flextable(t3_data) %>%
+t5_flex <- flextable(t5_data) %>%
   merge_v(j = ~ Host) %>%
   hline(part = "body") %>%
   vline(part = "body") %>%
   set_caption(caption = "Table 5: Citation rate mean differences by OA host type.") %>%
   set_table_properties(width = 1, layout = "autofit")
-t3_flex
+t5_flex
 
-save_as_docx(t3_flex, values = NULL, 
+save_as_docx(t5_flex, values = NULL, 
              path = "../figures/Table_5.docx")
 
 
-# ANCOVA Citation mean differences between click groups
-t4_flex <- as_flextable(m6_2) %>%
-  set_caption(caption = "Table 6: Citation mean differences by click groups.") %>%
+# Table 6: ANCOVA Citation mean differences between click groups
+t6_flex <- as_flextable(m6_2) %>%
+  set_caption(caption = "Table 6: Average annual citation rates by click groups.") %>%
   set_table_properties(width = 1, layout = "autofit")
-t4_flex
+t6_flex
 
-save_as_docx(t4_flex, values = NULL, 
+save_as_docx(t6_flex, values = NULL, 
              path = "../figures/Table_6.docx")
 
 
-# Table 5
+# Table 7: Citation effects of different OA host sub-types
 library(stargazer)
 stargazer(m1_2,
           m2_2,
@@ -613,14 +658,14 @@ stargazer(m1_2,
           m4_2,
           m5_2,
           type="html",
-          dep.var.labels = "Per-year citation rates per availability of OA copies by repository type",
+          dep.var.labels = "Per-year citation rate means",
           covariate.labels = c('Intercept',
                                'Clicks above median',
                                'Total OA copies above median',
                                'Count IR copies above median',
-                               'DR OA available',
+                               'Disciplinary repository OA available',
                                'Publisher OA available',
-                               'Other OA available'),
+                               'Other OA services available'),
           #ci = TRUE,
           #single.row = TRUE,
           intercept.bottom = FALSE,
@@ -628,34 +673,5 @@ stargazer(m1_2,
           align = TRUE,
           report = "vcst*",
           out = "../figures/Table_7.doc",
-          notes = "Table 7: Citation Impact of OA Copies of Items Held by Repository Type.")
-
-
-# Response to review
-# breakdown of sample by year of publication
-# adj_dat, ir_pub_year
-year_summary <- adj_dat %>% 
-  group_by(ir_pub_year) %>% 
-  summarise(count = sum(n()),
-            proportion = round((sum(n())/13457) * 100, digits = 2))
-
-year_summary
-
-yr_t <- flextable(year_summary) %>%
-  set_header_labels(
-    ir_pub_year = "Year uploaded to IR",
-    count = "Count",
-    proportion = "Proportion") %>%
-  colformat_num(j = 1, big.mark = "") %>%
-  set_caption(caption = "Table 1: Count of items by year of upload to IR.") %>%
-  set_table_properties(width = 1, layout = "autofit")
-yr_t
-
-save_as_docx(yr_t, values = NULL, 
-             path = "../figures/Table_1.docx")
-  
-
-
-
-
+          notes = "Table 7: Citation impact of additional OA copies of items held by repository type.")
 

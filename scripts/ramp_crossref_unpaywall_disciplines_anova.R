@@ -201,7 +201,7 @@ clean_dat%>%
   group_by(dr_type, disc_c)%>%
   count()
 #-------Is this interesting that manuscripts in medical and health sciences tend to be deposited in more than one disciplinary repositories while 
-#-------it is not a common practice for other disciplines.
+#-------it is not a common practice for other disciplines in our sample.
 
 
 clean_dat%>%
@@ -238,7 +238,8 @@ clean_dat_n  <- clean_dat_n [!(duplicated(clean_dat_n$index ) | duplicated(clean
 
 
 #-Run the model again without outliers.
-# Results are presented in Table n of the manuscript. 
+# Results are presented in Table 8 of the manuscript. 
+# Note: intercept is STEM disciplines
 m_disc_1 <- lm (citation_c_adj ~ dr_type, data = clean_dat_n)
 summary(m_disc_1)
 anova(m_disc_1)
@@ -255,7 +256,7 @@ coeftest(m_disc_1, vcov = vcovHC(m_disc_1, type = "HC0")) # citation advantages 
 # which have higher citations than other disciplines.
 
 # ANOVA Citation mean differences between disciplines
-# produces a table of line 243 output
+# produces a table of line 243 output, before adjusted SE
 t8_flex <- as_flextable(m_disc_1) %>%
   set_caption(caption = "Table 8: Citation mean differences by discipline.") %>%
   set_table_properties(width = 1, layout = "autofit")
@@ -269,7 +270,7 @@ library(stargazer)
 stargazer(coeftest(m_disc_1, vcov = vcovHC(m_disc_1, type = "HC0")),
           type="html",
           dep.var.labels = "Per-year citation rates of items available from disciplinary repositories, by discipline",
-          covariate.labels = c('Intercept',
+          covariate.labels = c('Intercept (STEM disciplines)',
                                'Medical and Health Sciences',
                                'Others'),
           intercept.bottom = FALSE,
@@ -278,6 +279,5 @@ stargazer(coeftest(m_disc_1, vcov = vcovHC(m_disc_1, type = "HC0")),
           report = "vcst*",
           out = "../figures/Table_8.doc",
           notes = "Table 8: Citation mean differences by discipline.")
-
 
 

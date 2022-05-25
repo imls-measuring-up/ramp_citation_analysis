@@ -97,10 +97,10 @@ total_oth_dois <- dat %>%
 
 # Finally, use set operations to compare 1:1 DOI matching
 host_dois <- unique(dat$doi)
-host_dois
+#host_dois
 
 analyzed_dois <- unique(analyzed_dat_adj$doi)
-analyzed_dois
+#analyzed_dois
 
 dois_sets_intersection <- intersect(host_dois, analyzed_dois) # should be eq to total_unique_dois
 setequal(host_dois, analyzed_dois) # should be TRUE
@@ -113,7 +113,7 @@ dat_disciplinary <- dat%>%
   filter(repo_subtype=="disciplinary")
 
 dat_disciplinary$repo_name <- as.factor(dat_disciplinary$repo_name)
-table(dat_disciplinary$repo_name)
+table(dat_disciplinary$repo_name) # Note this is off by 1 for some repos compared with ms T4. That's an artifact of the join w/ analyzed data that is done before creating T4.
 
 #----categorize repositories by disciplines
 dat_disciplinary$dr_type <- ifelse(dat_disciplinary$repo_name=="PubMed Central"|dat_disciplinary$repo_name=="PubMed Central - Europe PMC", 
@@ -254,51 +254,30 @@ coeftest(m_disc_1, vcov = vcovHC(m_disc_1, type = "HC0")) # citation advantages 
 # manuscripts in medical and health sciences have higher citations than engineering, technology, and natural sciences
 # which have higher citations than other disciplines.
 
-#-------check impact of number of copies in disciplinary repositories again
+# ANOVA Citation mean differences between disciplines
+# produces a table of line 243 output
+t8_flex <- as_flextable(m_disc_1) %>%
+  set_caption(caption = "Table 8: Citation mean differences by discipline.") %>%
+  set_table_properties(width = 1, layout = "autofit")
+t8_flex
 
-#---avoid double counting observations in each type of disciplinary repositories
-dat_disc_n <- dat_disciplinary[!duplicated(dat_disciplinary[c(1)]),]
-View(dat_disc_n)
-summary(dat_disc_n$dr_c)
+#save_as_docx(t8_flex, values = NULL, 
+#             path = "../figures/Table_8.docx")
 
-dat_disc_n <- cbind(index = 1:nrow(dat_disc_n), dat_disc_n)
-
-m_disc <- lm (citation_c_adj ~dr_c, data = dat_disc_n )
-summary(m_disc)
-
-# handle outliers
-res <- m_disc $residuals
-hist(res)
-# We can't assume normality of residuals
-
-#-Deal with outliers
-m_disc_1 <- augment(m_disc) %>%
-  mutate(index = 1:n())
-m_disc_1 %>% top_n(3, .cooksd)
-list_disc <- m_disc_1 %>%
-  filter(abs(.std.resid) > 3)
-index <- list_disc$index
-
-index <- list_disc$index
-list_1_n <- data.frame(index)
-dat_disc_n <- bind_rows(dat_disc_n, list_1_n)
-
-# Extract the rows which appear only once to remove influential values
-dat_disc_n  <- dat_disc_n [!(duplicated(dat_disc_n$index ) | duplicated(dat_disc_n$index , fromLast = TRUE)), ]
+# We prefer a table of line 253 output, with adjusted SE
+library(stargazer)
+stargazer(coeftest(m_disc_1, vcov = vcovHC(m_disc_1, type = "HC0")),
+          type="html",
+          dep.var.labels = "Per-year citation rates of items available from disciplinary repositories, by discipline",
+          covariate.labels = c('Intercept',
+                               'Medical and Health Sciences',
+                               'Others'),
+          intercept.bottom = FALSE,
+          intercept.top = TRUE,
+          align = TRUE,
+          report = "vcst*",
+          out = "../figures/Table_8.doc",
+          notes = "Table 8: Citation mean differences by discipline.")
 
 
-#-Run the model again without outliers.
-# Results are presented in Table n of the manuscript.
-m_disc_1 <- lm (citation_c_adj ~ dr_c, data = dat_disc_n)
-summary(m_disc_1)
-
-# check error distribution again
-error <- resid(m_disc_1)
-shapiro.test(error) # errors are not normally distributed
-
-#test homoscedasticity
-bptest(m_disc_1, studentize = FALSE) # variance homoscedasticity violation
-
-coeftest(m_disc_1, df = Inf, vcov = vcovHC(m_disc_1, type = "HC3"))
-#---the increase in number of copies in disciplinary repositories lead to the increase in the number of citations
 

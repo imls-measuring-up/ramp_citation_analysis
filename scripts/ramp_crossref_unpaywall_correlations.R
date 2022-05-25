@@ -632,7 +632,7 @@ t5_flex <- flextable(t5_data) %>%
   merge_v(j = ~ Host) %>%
   hline(part = "body") %>%
   vline(part = "body") %>%
-  set_caption(caption = "Table 5: Citation rate mean differences by OA host type.") %>%
+  set_caption(caption = "Table 5: Citation means by OA host type.") %>%
   set_table_properties(width = 1, layout = "autofit")
 t5_flex
 
